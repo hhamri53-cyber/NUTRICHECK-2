@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NutriCheck</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0d0d1a;color:#f0f0f5;font-family:'DM Sans',sans-serif;min-height:100vh;}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px 80px;}
+header{text-align:center;padding:52px 0 36px;}
+.logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#FF6B35,#FF4500);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-name{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;}
+.subtitle{color:rgba(255,255,255,0.38);font-size:14px;}
+.dropzone{border:2px dashed rgba(255,255,255,0.12);border-radius:20px;padding:52px 28px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.015);transition:border-color .2s;}
+.dropzone.drag{border-color:#FF6B35;}
+.dz-icon{font-size:38px;margin-bottom:12px;}
+.dz-title{font-size:15px;font-weight:500;color:rgba(255,255,255,0.65);margin-bottom:5px;}
+.dz-sub{font-size:12px;color:rgba(255,255,255,0.27);}
+.preview-wrap{position:relative;border-radius:18px;overflow:hidden;}
+.preview-wrap img{width:100%;max-height:340px;object-fit:cover;display:block;}
+.close-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:30px;height:30px;color:white;cursor:pointer;font-size:16px;}
+.btn-analyze{width:100%;margin-top:16px;background:linear-gradient(135deg,#FF6B35,#FF4500);border:none;border-radius:14px;padding:15px;color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 6px 22px rgba(255,107,53,0.3);}
+.btn-reset{width:100%;margin-top:14px;background:transparent;border:1px solid rgba(255,255,255,0.14);border-radius:14px;padding:13px;color:rgba(255,255,255,0.5);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.spinner-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:44px 0;}
+.spinner{width:48px;height:48px;border-radius:50%;border:3px solid rgba(255,255,255,0.07);border-top:3px solid #FF6B35;animation:spin .85s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-box{margin-top:16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.22);border-radius:12px;padding:13px 16px;color:#FCA5A5;font-size:13px;}
+.results{animation:fadeUp .45s ease forwards;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.result-header{display:flex;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+.result-img{width:100px;height:100px;object-fit:cover;border-radius:14px;}
+.result-meta{flex:1;min-width:180px;}
+.badge{display:inline-flex;align-items:center;gap:7px;margin-bottom:8px;}
+.badge-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:#FF6B35;}
+.ai-tag{font-size:10px;background:rgba(78,205,196,0.15);color:#4ECDC4;border-radius:20px;padding:2px 8px;}
+.analysis-txt{font-size:14px;line-height:1.65;color:rgba(255,255,255,0.7);margin-bottom:12px;}
+.tags{display:flex;flex-wrap:wrap;gap:4px;}
+.tag-food{background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.25);color:#4ECDC4;border-radius:20px;padding:4px 12px;font-size:12px;}
+.tag-micro{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);color:#A78BFA;border-radius:20px;padding:4px 12px;font-size:12px;}
+.macro-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.macro-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 18px;flex:1;min-width:120px;}
+.macro-icon{font-size:20px;margin-bottom:4px;}
+.macro-value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;}
+.macro-unit{font-size:11px;color:rgba(255,255,255,0.35);margin-left:3px;}
+.macro-label{font-size:11px;color:rgba(255,255,255,0.42);text-transform:uppercase;letter-spacing:.9px;margin-top:2px;}
+.macro-bar-bg{background:#1a1a2e;border-radius:6px;height:7px;overflow:hidden;margin-top:8px;}
+.macro-bar{height:100%;border-radius:6px;width:0;transition:width 1.1s cubic-bezier(0.16,1,0.3,1);}
+.section-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:16px 18px;margin-bottom:14px;}
+.section-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.3px;color:rgba(255,255,255,0.3);font-weight:600;margin-bottom:10px;}
+.disclaimer{background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.18);border-radius:12px;padding:11px 15px;margin-bottom:20px;display:flex;gap:9px;}
+.disclaimer p{font-size:12px;color:rgba(255,193,7,0.75);line-height:1.55;}
+footer{text-align:center;margin-top:56px;color:rgba(255,255,255,0.15);font-size:11px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><div class="logo-icon">🥗</div><span class="logo-name">NutriCheck</span></div>
+    <p class="subtitle">Analiza tu comida en segundos con IA</p>
+  </header>
+  <div id="dropzone" class="dropzone">
+    <div class="dz-icon">📷</div>
+    <p class="dz-title">Arrastra una imagen o haz clic para subir</p>
+    <p class="dz-sub">JPG, PNG, WebP · Máx. 10 MB</p>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" style="display:none"/>
+  <div id="previewWrap" style="display:none">
+    <div class="preview-wrap">
+      <img id="previewImg" src="" alt="Preview"/>
+      <button class="close-btn" id="btnClear">×</button>
+    </div>
+    <button class="btn-analyze" id="btnAnalyze">🔍 Analizar comida</button>
+  </div>
+  <div id="spinnerWrap" class="spinner-wrap" style="display:none">
+    <div class="spinner"></div>
+    <p style="color:rgba(255,255,255,0.4);font-size:13px">Analizando con IA…</p>
+  </div>
+  <div id="errorBox" class="error-box" style="display:none"></div>
+  <div id="results" style="display:none"></div>
+  <footer>NutriCheck · Powered by Claude AI · Estimaciones orientativas</footer>
+</div>
+<script>
+const MACROS=[
+  {key:'estimated_calories',label:'Calorías',unit:'kcal',icon:'🔥',color:'#FF6B35',max:1200},
+  {key:'protein_g',label:'Proteínas',unit:'g',icon:'💪',color:'#4ECDC4',max:80},
+  {key:'carbs_g',label:'Carbohidratos',unit:'g',icon:'🌾',color:'#FFD93D',max:120},
+  {key:'fat_g',label:'Grasas',unit:'g',icon:'🫒',color:'#6BCB77',max:60},
+  {key:'fiber_g',label:'Fibra',unit:'g',icon:'🌿',color:'#A78BFA',max:30},
+];
+let currentFile=null,previewURL=null;
+const dz=document.getElementById('dropzone');
+const fi=document.getElementById('fileInput');
+const pw=document.getElementById('previewWrap');
+const pi=document.getElementById('previewImg');
+const sp=document.getElementById('spinnerWrap');
+const eb=document.getElementById('errorBox');
+const rd=document.getElementById('results');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');loadFile(e.dataTransfer.files[0]);});
+dz.addEventListener('click',()=>fi.click());
+fi.addEventListener('change',()=>loadFile(fi.files[0]));
+document.getElementById('btnClear').addEventListener('click',reset);
+document.getElementById('btnAnalyze').addEventListener('click',analyze);
+function loadFile(f){
+  if(!f)return;
+  if(!['image/jpeg','image/png','image/webp','image/gif'].includes(f.type)){showErr('Formato no válido.');return;}
+  if(f.size>10*1024*1024){showErr('Imagen demasiado grande.');return;}
+  hideErr();currentFile=f;
+  if(previewURL)URL.revokeObjectURL(previewURL);
+  previewURL=URL.createObjectURL(f);
+  pi.src=previewURL;dz.style.display='none';pw.style.display='block';rd.style.display='none';rd.innerHTML='';
+}
+function reset(){currentFile=null;dz.style.display='';pw.style.display='none';sp.style.display='none';rd.style.display='none';rd.innerHTML='';hideErr();}
+async function analyze(){
+  if(!currentFile)return;
+  hideErr();pw.style.display='none';sp.style.display='flex';rd.style.display='none';
+  const form=new FormData();form.append('image',currentFile);
+  try{
+    const res=await fetch('/api/analyze',{method:'POST',body:form});
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Error del servidor.');
+    sp.style.display='none';renderResults(data);
+  }catch(err){sp.style.display='none';pw.style.display='block';showErr(err.message);}
+}
+function renderResults(r){
+  let html=`<div class="results"><div class="result-header">
+    ${previewURL?`<img class="result-img" src="${previewURL}" alt="Plato"/>`:''}
+    <div class="result-meta">
+      <div class="badge"><span class="badge-label">Análisis completo</span><span class="ai-tag">IA</span></div>
+      <p class="analysis-txt">${esc(r.analysis||'')}</p>
+      <div class="tags">${(r.detected_foods||[]).map(f=>`<span class="tag-food">${esc(f)}</span>`).join('')}</div>
+    </div></div>
+    <div class="macro-grid">${MACROS.map(m=>`
+      <div class="macro-card">
+        <div class="macro-icon">${m.icon}</div>
+        <div class="macro-value" style="color:${m.color}">${r[m.key]??'—'}<span class="macro-unit">${m.unit}</span></div>
+        <div class="macro-label">${m.label}</div>
+        <div class="macro-bar-bg"><div class="macro-bar" id="bar-${m.key}" style="background:${m.color}"></div></div>
+      </div>`).join('')}</div>`;
+  if(r.micronutrients?.length)html+=`<div class="section-card"><div class="section-lbl">Micronutrientes</div><div class="tags">${r.micronutrients.map(m=>`<span class="tag-micro">${esc(m)}</span>`).join('')}</div></div>`;
+  html+=`<div class="disclaimer"><span>⚠️</span><p>${esc(r.disclaimer||'')} No sustituye a un nutricionista.</p></div>
+    <button class="btn-reset" onclick="reset()">Analizar otra comida</button></div>`;
+  rd.innerHTML=html;rd.style.display='block';
+  setTimeout(()=>{MACROS.forEach(m=>{const b=document.getElementById('bar-'+m.key);if(b)b.style.width=Math.min(((parseFloat(r[m.key])||0)/m.max)*100,100)+'%';});},80);
+}
+function showErr(m){eb.textContent='⚠️ '+m;eb.style.display='block';}
+function hideErr(){eb.style.display='none';}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+</script>
+</body>
+</html>
